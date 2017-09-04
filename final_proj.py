@@ -116,13 +116,15 @@ class FinalProject(wx.Frame):
 
         # radio buttons
         #self.rb = wx.RadioButton(self.panel, -1, 'Moving Average')
+        # Drop down list
+        correlation_option = ['high', 'low', 'close', 'stock', 'volatility']
+        self.x_box = wx.ComboBox(self.panel, choices=correlation_option, size=(150, 20))
+        self.text_xbox = wx.StaticText(self.panel, -1, 'Parameter 1 :      ', size=(100, 22))
+        self.y_box = wx.ComboBox(self.panel, choices=correlation_option, size=(150, 20))
+        self.text_ybox = wx.StaticText(self.panel, -1, 'Parameter 2 :      ', size=(100, 22))
 
         #check box
-        self.date_option=wx.CheckBox(self.panel,-1,'Time',size=(100,25))
-        self.highval_option = wx.CheckBox(self.panel, -1, 'High Value',size=(100,25))
-        self.lowval_option = wx.CheckBox(self.panel, -1, 'Low Value',size=(100,25))
-        self.closeval_option = wx.CheckBox(self.panel, -1, 'Closing Value',size=(100,25))
-        self.stock_option = wx.CheckBox(self.panel, -1, 'Stock',size=(100,25))
+
         self.highval_option_mvg = wx.CheckBox(self.panel, -1, 'High Value', size=(100, 20))
         self.lowval_option_mvg = wx.CheckBox(self.panel, -1, 'Low Value', size=(100, 20))
 
@@ -156,13 +158,13 @@ class FinalProject(wx.Frame):
         #correlation checkboxes1
 
         self.correlation_checkbox1=wx.BoxSizer(wx.HORIZONTAL)
-        self.correlation_checkbox1.Add(self.date_option,0,border=10,flag=flags)
-        self.correlation_checkbox1.Add(self.highval_option, 0, border=10, flag=flags)
+        self.correlation_checkbox1.Add(self.text_xbox,0,border=10,flag=flags)
+        self.correlation_checkbox1.Add(self.x_box, 0, border=10, flag=flags)
 
         self.correlation_checkbox2=wx.BoxSizer(wx.HORIZONTAL)
-        self.correlation_checkbox2.Add(self.lowval_option, 0, border=10, flag=flags)
-        self.correlation_checkbox2.Add(self.closeval_option, 0, border=10, flag=flags)
-        self.correlation_checkbox2.Add(self.stock_option, 0, border=10, flag=flags)
+        self.correlation_checkbox2.Add(self.text_ybox, 0, border=10, flag=flags)
+        self.correlation_checkbox2.Add(self.y_box, 0, border=10, flag=flags)
+
 
         #correlation button
         self.correlation_button=wx.BoxSizer(wx.HORIZONTAL)
@@ -368,76 +370,35 @@ class FinalProject(wx.Frame):
         global y_axis
         global x_name
         global y_name
-        if(self.date_option.GetValue()== True & self.highval_option.GetValue()==True):
-            x_axis=date_val
-            y_axis=high_val
-            x_name='date'
-            y_name='high value'
-            correlation()
-        elif (self.date_option.GetValue()== True & self.lowval_option.GetValue()==True):
-            x_axis = date_val
+        x_name = self.x_box.GetValue()
+        y_name=self.y_box.GetValue()
+        if(self.x_box.GetValue()== 'high' ):
+            x_axis=high_val
+        elif(self.x_box.GetValue()== 'low' ):
+            x_axis=low_val
+        elif(self.x_box.GetValue()== 'close' ):
+            x_axis=close_val
+        elif(self.x_box.GetValue()== 'stock' ):
+            x_axis=stock_val
+        elif(self.x_box.GetValue()== 'volatility') :
+            volatile_check()
+            x_axis=volatile_value
+
+        if (self.y_box.GetValue() == 'high'):
+            y_axis = high_val
+        elif (self.y_box.GetValue() == 'low'):
             y_axis = low_val
-            x_name = 'date'
-            y_name = 'low value'
-            correlation()
-        elif (self.date_option.GetValue()== True & self.closeval_option.GetValue()==True):
-
-            x_axis = date_val
+        elif (self.y_box.GetValue() == 'close'):
             y_axis = close_val
-            x_name = 'date'
-            y_name = 'close value'
-            correlation()
-        elif (self.date_option.GetValue()== True & self.stock_option.GetValue()==True):
-            x_axis = date_val
+        elif (self.y_box.GetValue() == 'stock'):
             y_axis = stock_val
-            x_name = 'date'
-            y_name = 'stock value'
-            correlation()
-        elif (self.highval_option.GetValue()==True & self.lowval_option.GetValue()==True):
+        elif (self.y_box.GetValue() == 'volatility'):
+            volatile_check()
+            y_axis = volatile_value
 
-            x_axis = high_val
-            y_axis = low_val
-            x_name = 'high value'
-            y_name = 'low value'
-            correlation()
-        elif (self.highval_option.GetValue()==True & self.closeval_option.GetValue()==True):
 
-            x_axis = high_val
-            y_axis = close_val
-            x_name = 'high value'
-            y_name = 'close value'
-            correlation()
-        elif (self.highval_option.GetValue()==True & self.stock_option.GetValue()==True):
+        correlation()
 
-            x_axis = high_val
-            y_axis = stock_val
-            x_name = 'high value'
-            y_name = 'stock value'
-            correlation()
-        elif (self.lowval_option.GetValue()==True & self.closeval_option.GetValue()==True):
-
-            x_axis = low_val
-            y_axis = close_val
-            x_name = 'low value'
-            y_name = 'close value'
-            correlation()
-        elif (self.lowval_option.GetValue()==True & self.stock_option.GetValue()==True):
-
-            x_axis = low_val
-            y_axis = stock_val
-            x_name = 'low value'
-            y_name = 'stock value'
-            correlation()
-        elif (self.closeval_option.GetValue()==True & self.stock_option.GetValue()==True):
-
-            x_axis = close_val
-            y_axis = stock_val
-            x_name = 'close value'
-            y_name = 'stock value'
-            correlation()
-        else:
-            #do nothing
-            print 'error'
 
     def on_draw_reset(self, event):
         reset_all_global()
@@ -646,6 +607,7 @@ def correlation():
     global stock_val
     global sno
     global close_val
+    global volatile_value
     global x_axis
     global y_axis
     global flag
@@ -654,7 +616,7 @@ def correlation():
     flag=3
     temp1 = list(high_val)
     temp2 = list(low_val)
-    temp0= list(date_val)
+    temp0= list(volatile_value)
     temp3=list(close_val)
     temp4=list(stock_val)
     k=0
