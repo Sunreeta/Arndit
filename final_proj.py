@@ -673,57 +673,7 @@ def correlation():
         f.write(str(temp0[i]) + '\t' + str(temp1[i]) + '\t' + str(temp2[i]) + '\t' + str(temp3[i])+'\t'+str(temp4[i]) + '\n')
     f.close()
 
-def read_visco_file(filename):
-    global shear_stress
-    global shear_rate
-    global viscosity
-    global epsilon_dot
 
-    shear_stress = []
-    shear_rate = []
-    viscosity = []
-
-    print "Length Epsilon_dot" + str(len(epsilon_dot))
-
-    if (len(epsilon_dot) > 0):
-        wx.MessageBox('Please Reset Plots Before Loading Viscosity File ', 'Error',
-                      wx.OK | wx.ICON_ERROR)
-        return
-
-    print "Reading Viscosity File.....\n"
-    f1 = open(filename, "r")
-    data_flag = 0
-    for line in f1:
-        # print line
-        line_fields = line.split()
-        if (len(line_fields) == 3):
-            if (line_fields[0].find('(') == -1):
-                # if (isinstance(line_fields[0],(int,float))):
-                shear_stress.append(float(line_fields[0]))
-                shear_rate.append(float(line_fields[1]))
-                viscosity.append(float(line_fields[2]))
-    print "Shear Stress : "
-    print shear_stress
-    print "Shear Rate : "
-    print shear_rate
-    print "Viscosity : "
-    print viscosity
-    f1.close()
-
-def create_avg(fieldname):
-    temp1=[]
-    sum=0
-    temp=list(fieldname)
-    k=0
-    for i in range(0, len(temp)):
-        if (int(temp[i])!=0):
-            k=k+1
-            sum = sum + int(temp[i])
-            temp1.append(temp[i])
-    avg=sum/k
-    print temp1
-    print avg
-    return avg
 def reset_all_global():
     global frame_no
     global time
