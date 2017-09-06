@@ -30,6 +30,7 @@ x_axis_val=[]
 y_axis_val=[]
 flag=0
 sno = []
+volatile_date=[]
 high_val = []
 low_val = []
 close_val = []
@@ -135,6 +136,7 @@ class FinalProject(wx.Frame):
 
         #no of points moving avg
         flags = wx.ALIGN_BOTTOM
+
         self.avg_points= wx.BoxSizer(wx.HORIZONTAL)
         self.avg_points.Add(self.avg_points_txt, 1, border=10, flag=flags)
         self.avg_points.Add(self.avg_points_txt_val, 0, border=10, flag=flags)
@@ -241,6 +243,7 @@ class FinalProject(wx.Frame):
         print flag
         global x_axis_val
         global y_axis_val
+        global volatile_date
         global x_name
         global y_name
 
@@ -249,8 +252,9 @@ class FinalProject(wx.Frame):
            if (len(sno) > 0):
               print "Drawing plot ..... "
               self.axes = self.fig.add_subplot(1,1,1)
-              self.axes.plot(date_val,volatile_value, marker='o', linestyle='--', color='red')
-              self.axes.set_xlabel('day')
+
+              self.axes.plot(x_axis_val,y_axis_val, marker='o', linestyle='--', color='red')
+              self.axes.set_xlabel('date')
               self.axes.set_ylabel('volatile_value')
               # if (len(diameter_mm_smooth) > 0):
              #   self.axes.plot(frame_no, diameter_mm_smooth, 'black')
@@ -327,21 +331,7 @@ class FinalProject(wx.Frame):
                          self.my_text.WriteText(line)
                     #print line
 
-       # wildcard = "TXT files (*.txt)|*.txt"
-        #dialog = wx.FileDialog(self, "Open Text Files", wildcard=wildcard, style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
 
-       # if dialog.ShowModal() == wx.ID_CANCEL:
-        #    return
-
-       # path = dialog.GetPath()
-
-       # if os.path.exists(path):
-        #    with open(path) as fobj:
-       #         moving_avg_filter()
-       #         for line in fobj:
-
-       #             self.my_text.WriteText(line)
-       #         print line
 #moving Algorithm
 #moving average
     def on_draw_movingAvg(self, event):
@@ -364,6 +354,14 @@ class FinalProject(wx.Frame):
  # volatile check
     def on_draw_volatile(self,event):
         volatile_check()
+        temp1=list(volatile_value)
+        temp2=list(volatile_date)
+        for i in range(0,len(sno)):
+            if int(temp1[i]) != 0 :
+                x_axis_val.append(temp2[i])
+                y_axis_val.append(temp1[i])
+        print x_axis_val
+        print y_axis_val
 #correlation
     def on_draw_correlation(self,event):
         global x_axis
@@ -541,12 +539,13 @@ def read_file(filename):
 #volatile check
 def volatile_check():
     global sno
-    global time_diff
     global volatile_value
     global high_val
     global low_val
+    global volatile_date
     global date_val
     global flag
+    global x_axis_val
     flag=2
     temp=[]
 
@@ -560,13 +559,19 @@ def volatile_check():
     f = open('myfile.txt', 'w')
     f.write('DAY'+'\t\t'+'HIGH' + '\t' + 'LOW' + '\t' + 'VOLATILE' + '\n')
     for i in range(0,len(sno)):
-        dif=int(temp1[i])-int(temp2[i])
+        if (int(temp1[i])!=0 and int(temp2[i])!=0):
+            dif=int(temp1[i])-int(temp2[i])
+        else:
+            dif=0
         #print dif
 
         f.write(str(temp[i])+'\t'+str(temp1[i])+'\t'+str(temp2[i])+'\t'+str(dif)+'\n')
 
         volatile_value.append(dif)
+        volatile_date.append(temp[i])
     #print volatile_value
+    print volatile_value
+    print volatile_date
     f.close()
 
 # moving average filter
@@ -616,9 +621,10 @@ def correlation():
     flag=3
     temp1 = list(high_val)
     temp2 = list(low_val)
-    temp0= list(volatile_value)
+    temp0= list(date_val)
     temp3=list(close_val)
     temp4=list(stock_val)
+    temp5=list(volatile_value)
     k=0
     sum1=0
     sum2=0
