@@ -93,8 +93,8 @@ class FinalProject(wx.Frame):
         self.fig.subplots_adjust(hspace=0.3, wspace=0.3)  # space at the bottom for axes labels
         self.canvas = FigCanvas(self.panel,-1, self.fig)
         self.axes = self.fig.add_subplot(1,1,1)
-        self.axes.set_xlabel('Time')  # al
-        self.axes.set_ylabel('Average')  # al
+        self.axes.set_xlabel('X-Axis')  # al
+        self.axes.set_ylabel('Y-Axis')  # al
 
         # control Buttons
         self.refresh = wx.Button(self.panel,-1, "Display Graph", size=(200,25))
@@ -115,8 +115,7 @@ class FinalProject(wx.Frame):
         # Text Panel
         self.my_text = wx.TextCtrl(self.panel,-1,"Show Data",style=wx.TE_MULTILINE,size=(400,500))
 
-        # radio buttons
-        #self.rb = wx.RadioButton(self.panel, -1, 'Moving Average')
+
         # Drop down list
         correlation_option = ['high', 'low', 'close', 'stock', 'volatility']
         self.x_box = wx.ComboBox(self.panel, choices=correlation_option, size=(150, 20))
@@ -124,37 +123,28 @@ class FinalProject(wx.Frame):
         self.y_box = wx.ComboBox(self.panel, choices=correlation_option, size=(150, 20))
         self.text_ybox = wx.StaticText(self.panel, -1, 'Parameter 2 :      ', size=(100, 22))
 
-        #check box
-
-        self.highval_option_mvg = wx.CheckBox(self.panel, -1, 'High Value', size=(100, 20))
-        self.lowval_option_mvg = wx.CheckBox(self.panel, -1, 'Low Value', size=(100, 20))
+        self.moving_avg_box=wx.ComboBox(self.panel,choices=correlation_option,size=(150,20))
+        self.text_mvgavg_box=wx.StaticText(self.panel,-1,' Parameter :    ',size=(100,22))
 
         # moving avg points
-        self.avg_points_txt = wx.StaticText(self.panel, label="     No. of Points : ")
-        self.avg_points_txt_val = wx.TextCtrl(self.panel, value="1")
+        self.avg_points_txt = wx.StaticText(self.panel, label=" No. of Points :    ",size=(100,22))
+        self.avg_points_txt_val = wx.TextCtrl(self.panel, value="1",size=(150,20))
 
 
         #no of points moving avg
-        flags = wx.ALIGN_BOTTOM
+        flags = wx.ALIGN_CENTER
 
-        self.avg_points= wx.BoxSizer(wx.HORIZONTAL)
-        self.avg_points.Add(self.avg_points_txt, 1, border=10, flag=flags)
-        self.avg_points.Add(self.avg_points_txt_val, 0, border=10, flag=flags)
 
         #text options
-        self.movingAvg_Option_text = wx.BoxSizer(wx.VERTICAL)
-        self.movingAvg_Option_text.Add(self.avg_points, 0, border=10, flag=flags)
+        self.movingAvg_Option_text = wx.BoxSizer(wx.HORIZONTAL)
+        self.movingAvg_Option_text.Add(self.avg_points_txt, 0, border=10, flag=flags)
+        self.movingAvg_Option_text.Add(self.avg_points_txt_val, 0, border=10, flag=flags)
 
-        # radio buttons
-        self.radio_movingAvg = wx.BoxSizer(wx.VERTICAL)
-        self.radio_movingAvg.Add(self.highval_option_mvg, 0, border=3, flag=flags)
-        self.radio_movingAvg.Add(self.lowval_option_mvg, 0, border=3, flag=flags)
-       # self.radio_movingAvg.Add(self.rb, 0, border=3, flag=flags)
 
         # moving average options
         self.movingAvg_Option = wx.BoxSizer(wx.HORIZONTAL)
-        self.movingAvg_Option.Add(self.radio_movingAvg, 0, border=3, flag=flags)
-        self.movingAvg_Option.Add(self.movingAvg_Option_text, 0, border=3, flag=flags)
+        self.movingAvg_Option.Add(self.text_mvgavg_box, 0, border=3, flag=flags)
+        self.movingAvg_Option.Add(self.moving_avg_box, 0, border=3, flag=flags)
 
 
         #correlation checkboxes1
@@ -184,6 +174,7 @@ class FinalProject(wx.Frame):
         # taskbarvbox 2
         self.taskbarvbox2 = wx.BoxSizer(wx.VERTICAL)
         self.taskbarvbox2.Add(self.movingAvg_Option, 0, border=10, flag=flags)
+        self.taskbarvbox2.Add(self.movingAvg_Option_text,0,border=10,flag=flags)
         self.taskbarvbox2.Add(self.movingAvg, 0, border=10, flag=flags)
 
         # taskbarvbox 3
@@ -341,17 +332,26 @@ class FinalProject(wx.Frame):
 
         no_of_points=self.avg_points_txt_val.GetValue()
         #print no_of_points
-        if(self.highval_option_mvg.GetValue()==True):
-            mvg_avg_name="high value"
-            mvg_avg_option=high_val
-            moving_avg_filter()
-        if(self.lowval_option_mvg.GetValue()==True):
-            mvg_avg_name="low value"
-            mvg_avg_option=low_val
-            moving_avg_filter()
-       # print "Radio Button State : " + str(rb_fitting_state)
-       # FinalProject.on_draw_button1(self, event)
- # volatile check
+        if (self.moving_avg_box.GetValue() == 'high'):
+            mvg_avg_option = high_val
+            mvg_avg_name='High Value'
+        elif (self.moving_avg_box.GetValue() == 'low'):
+            mvg_avg_option = low_val
+            mvg_avg_name='Low Value'
+        elif (self.moving_avg_box.GetValue() == 'close'):
+            mvg_avg_option = close_val
+            mvg_avg_name='Close Value'
+        elif (self.moving_avg_box.GetValue() == 'stock'):
+            mvg_avg_option = stock_val
+            mvg_avg_name='Stock Value'
+        elif (self.moving_avg_box.GetValue() == 'volatility'):
+            volatile_check()
+            mvg_avg_option= volatile_value
+            mvg_avg_name='Volatility'
+        moving_avg_filter()
+
+
+            # volatile check
     def on_draw_volatile(self,event):
         volatile_check()
         temp1=list(volatile_value)
@@ -425,28 +425,7 @@ class FinalProject(wx.Frame):
 
          #   self.editxt2.SetValue(str(offset_diam))
 
-    def on_read_visco(self, event):
-        global epsilon_dot
 
-        if (len(epsilon_dot) > 0):
-            wx.MessageBox('Please Reset Plots Before Loading Viscosity File ', 'Error',
-                          wx.OK | wx.ICON_ERROR)
-            return
-
-        file_choices = "Text (*.txt)|*.txt"
-
-        dlg = wx.FileDialog(
-            self,
-            message="Read Viscosity File...",
-            defaultDir=os.getcwd(),
-            defaultFile="",
-            wildcard=file_choices,
-            style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-
-        if dlg.ShowModal() == wx.ID_OK:
-            path = dlg.GetPath()
-            read_visco_file(path)
-            # self.flash_status_message("File Loaded %s" % path)
 
     def on_save_plot(self, event):
         file_choices = "PNG (*.png)|*.png"
@@ -571,7 +550,6 @@ def volatile_check():
         volatile_date.append(temp[i])
     #print volatile_value
     print volatile_value
-    print volatile_date
     f.close()
 
 # moving average filter
@@ -581,24 +559,29 @@ def moving_avg_filter():
     global high_val
     global date_val
     global flag
+    global volatile_value
     global no_of_points
     global mvg_avg_option
     temp=[]
+    temp2=[]
     mvg_avg=[]
     temp = mvg_avg_option
     #print temp
     flag=1
+    for r in range(0,len(temp)):
+        if temp[r]!=0 :
+            temp2.append(temp[r])
+    print temp2
 
     k = int(no_of_points)
     print k# for k point moving average
     print "Applying " + str(k)+ " Point Moving Average filter...."
-    for i in range(1,(len(temp)-k+1)):
+    for i in range(0,(len(temp2)-k+1)):
         sum = 0
         # print "original diameter:" + str(diameter_mm_mvg_avg[i])+ "\t"
         for j in range(i,i+k):
-            sum = sum + int(temp[j])
-            #print sum
-            # print orig_diameter_mm[i + j]
+            sum = sum + int(temp2[j])
+
         avg=sum/k
         mvg_avg.append(avg)
         # print "new diameter:" + str(diameter_mm_mvg_avg[i]) + "\n"
