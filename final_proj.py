@@ -117,7 +117,7 @@ class FinalProject(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.on_draw_correlation, self.correlation)
 
         # Text Panel
-        self.my_text = wx.TextCtrl(self.panel,-1,"Show Data",style=wx.TE_MULTILINE,size=(400,500))
+        self.my_text = wx.TextCtrl(self.panel,-1,style=wx.TE_MULTILINE,size=(400,500))
 
 
         # Drop down list
@@ -306,24 +306,33 @@ class FinalProject(wx.Frame):
 #moving average
         if flag==1:
             global mvg_avg_name
-            print "Button 1 Clicked"
             self.my_text.WriteText("moving Average("+mvg_avg_name +")\n")
             for line in mvg_avg:
               self.my_text.WriteText(str(line)+"\n")
 # volatility
         if flag==2:
-            if os.path.exists('myfile.txt'):
-              with open('myfile.txt') as fobj:
-                 for line in fobj:
-                     self.my_text.WriteText(line)
+            global volatile_date
+            global volatile_value
+            temp1=list(volatile_date)
+            temp2=list(volatile_value)
+            self.my_text.WriteText('Date \t\t Volatility\n')
+            for i in range(0,len(volatile_date)):
+                self.my_text.WriteText(str(temp1[i])+' \t '+str(temp2[i])+'\n')
+
+
+            #if os.path.exists('myfile.txt'):
+              #with open('myfile.txt') as fobj:
+                 #for line in fobj:
+                     #self.my_text.WriteText(line)
                  #print line
 
                  # correlation
         if flag == 3:
-            if os.path.exists('myfile_correlation.txt'):
-               with open('myfile_correlation.txt') as fobj:
-                    for line in fobj:
-                         self.my_text.WriteText(line)
+            self.my_text.WriteText('Correlation between '+ str(x_name) +' & '+str(y_name)+' is : '+ str(correl_val))
+            #if os.path.exists('myfile_correlation.txt'):
+              # with open('myfile_correlation.txt') as fobj:
+                  #  for line in fobj:
+                       #  self.my_text.WriteText(line)
                     #print line
 
 
@@ -403,7 +412,9 @@ class FinalProject(wx.Frame):
 
 
     def on_draw_reset(self, event):
+        global flag
         reset_all_global()
+        flag=0
         FinalProject.on_draw_refresh(self, event)
 
     def on_load_file(self, event):
@@ -472,6 +483,7 @@ class FinalProject(wx.Frame):
 
 # Supplementary functions
 def read_file(filename):
+    reset_all_global()
     global sno
     global date_val
     global high_val
@@ -479,6 +491,7 @@ def read_file(filename):
     global close_val
     global offset_diam
     global stock_val
+
     book=xlrd.open_workbook(filename)
     sheet=book.sheet_by_index(0)
     serial=0
@@ -668,6 +681,7 @@ def export_data(filename):
     global x_axis_val
     global y_axis_val
     global correl_val
+    global flag
 
 
     global rd_path
@@ -683,7 +697,7 @@ def export_data(filename):
 
         temp1=list(mvg_avg)
         sheet.write(0,0, mvg_avg_name)
-        for i in range(1,len(mvg_avg)):
+        for i in range(0,len(mvg_avg)):
             sheet.write(i,0,temp1[i])
 
     if flag == 2:
@@ -694,7 +708,7 @@ def export_data(filename):
         sheet.write(0,0, 'Date')
         sheet.write(0,1,'Volatility')
 
-        for i in range(1,len(volatile_date)):
+        for i in range(0,len(volatile_date)):
             sheet.write(i,0,temp1[i])
             sheet.write(i,1,temp2[i])
 
@@ -713,61 +727,57 @@ def export_data(filename):
 
     fw.close()
 
-
-
-
-
 def reset_all_global():
-    global frame_no
-    global time
-    global diameter_mm
-    global diameter_pix
-    global Y_position
-    global diameter_mm_mvg_avg
-    global diff_diameter_mm
-    global epsilon_dot
-    global neg_diff_diameter_mm
-    global ext_viscosity
-    global hencky_strain
-    global trouton_ratio
+    global sno
+    global date_val
+    global high_val
+    global low_val
+    global close_val
     global offset_diam
-    global diameter_mm_smooth
-    global plot_diameter_mm_smooth
+    global stock_val
+    global x_axis
+    global y_axis
+    global x_axis_val
+    global y_axis_val
+    global flag
+    global no_of_points
+    global volatile_date
+    global volatile_value
+    global mvg_avg
+    global mvg_avg_option
+    global rd_path
+    global wr_path
+    global x_name
+    global y_name
+    global mvg_avg_name
+    global correl_val
+    global text_path
 
-    frame_no = []
-    time = []
-    diameter_mm = []
-    diameter_pix = []
-    Y_position = []
-    diameter_mm_mvg_avg = []
-    diameter_mm_smooth = []
-    plot_diameter_mm_smooth = []
-    diff_diameter_mm = []
-    neg_diff_diameter_mm = []
-    epsilon_dot = []
-    ext_viscosity = []
-    shear_stress = []
-    shear_rate = []
-    viscosity = []
-    hencky_strain = []
-    trouton_ratio = []
-
-    Frame_Rate = 0
-    Scale = 0
-    Temperature = 0
-    GapSize = 0
-    Stretch_Dist = 0
-    PistonDiam = 0
-    Sureface_Tension = 0
-    Density = 0
-    Viscosity = 0
-    Fitting_Value = 0.7
-
-    rb_fitting_state = 0
     offset_diam = 0
+    no_of_points = 1
+    x_axis = []
+    y_axis = []
+    x_axis_val = []
+    y_axis_val = []
+    flag = 0
+    sno = []
+    volatile_date = []
+    high_val = []
+    low_val = []
+    close_val = []
+    time_diff = []
+    date_val = []
+    stock_val = []
+    mvg_avg = []
+    volatile_value = []
+    mvg_avg_option = []
     rd_path = ""
     wr_path = ""
-
+    text_path = ""
+    x_name = ""
+    y_name = ""
+    mvg_avg_name = ""
+    correl_val = 0.0
 
 if __name__ == '__main__':
     app = wx.App(False)
