@@ -39,6 +39,7 @@ time_diff = []
 date_val = []
 stock_val=[]
 mvg_avg = []
+cyclic_date_val=[]
 volatile_value = []
 mvg_avg_option=[]
 rd_path = ""
@@ -113,6 +114,8 @@ class FinalProject(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.on_draw_movingAvg, self.movingAvg)
         self.checkVolatility = wx.Button(self.panel, -1, "Volatility check",size=(200,25))
         self.Bind(wx.EVT_BUTTON, self.on_draw_volatile, self.checkVolatility)
+        self.cyclic_correlation = wx.Button(self.panel, -1, "Cyclic Correlation", size=(200, 25))
+        self.Bind(wx.EVT_BUTTON, self.on_draw_cyclic_correlation, self.cyclic_correlation)
         self.correlation = wx.Button(self.panel, -1, "Apply Correlation",size=(250,25))
         self.Bind(wx.EVT_BUTTON, self.on_draw_correlation, self.correlation)
 
@@ -185,6 +188,7 @@ class FinalProject(wx.Frame):
         flags = wx.ALIGN_BOTTOM
         self.taskbarvbox3 = wx.BoxSizer(wx.VERTICAL)
         self.taskbarvbox3.Add(self.checkVolatility, 0, border=10, flag=flags)
+        self.taskbarvbox3.Add(self.cyclic_correlation,0, border=10, flag=flags)
 
         # taskbarvbox 4
         self.taskbarvbox4 = wx.BoxSizer(wx.VERTICAL)
@@ -268,10 +272,33 @@ class FinalProject(wx.Frame):
                 # if (len(diameter_mm_smooth) > 0):
                 #   self.axes.plot(frame_no, diameter_mm_smooth, 'black')
 
-                    self.canvas.draw()
+            self.canvas.draw()
+
+        if flag==4:
+            if (len(sno) > 0):
+                    print "Drawing plot ..... "
+                #if((x_axis==0) & (y_axis==1)):
+                   # print x_axis
+                    #print y_axis
+                    self.axes = self.fig.add_subplot(1, 1, 1)
+                    self.axes.plot(x_axis_val, y_axis_val, marker='o', linestyle=' ', color='red')
+                    self.axes.set_xlabel('Month Number')
+                    self.axes.set_ylabel('close value')
+                # if (len(diameter_mm_smooth) > 0):
+                #   self.axes.plot(frame_no, diameter_mm_smooth, 'black')
+
+            self.canvas.draw()
+
 
 
 # Display button
+
+    def on_draw_cyclic_correlation(self,event):
+        global flag
+        flag=4
+        cyclic_correlation()
+
+
     def on_draw_display(self, event):
         temp=[]
         global mvg_avg
@@ -292,16 +319,9 @@ class FinalProject(wx.Frame):
             temp3 = list(close_val)
             temp4 = list(stock_val)
             #print temp1, temp2
-            f = open('myfile_data.txt', 'w')
-            f.write('DAY' + '\t\t' + 'HIGH' + '\t' + 'LOW' + '\t' + 'CLOSE' + '\t' + 'STOCK' + '\n')
+            self.my_text.WriteText('Date \t\t High \t Low \t Close \t Stock\n')
             for i in range(0, len(sno)):
-                f.write(str(temp0[i]) + '\t' + str(temp1[i]) + '\t' + str(temp2[i]) + '\t' + str(temp3[i]) + '\t' + str(
-                    temp4[i]) + '\n')
-            f.close()
-            if os.path.exists('myfile_data.txt'):
-              with open('myfile_data.txt') as fobj:
-                 for line in fobj:
-                     self.my_text.WriteText(line)
+                self.my_text.WriteText(str(temp0[i]) + ' \t ' + str(temp1[i]) + ' \t' +str(temp2[i])+' \t'+str(temp3[i])+' \t'+str(temp4[i])+'\n')
                  #print line
 #moving average
         if flag==1:
@@ -318,15 +338,7 @@ class FinalProject(wx.Frame):
             self.my_text.WriteText('Date \t\t Volatility\n')
             for i in range(0,len(volatile_date)):
                 self.my_text.WriteText(str(temp1[i])+' \t '+str(temp2[i])+'\n')
-
-
-            #if os.path.exists('myfile.txt'):
-              #with open('myfile.txt') as fobj:
-                 #for line in fobj:
-                     #self.my_text.WriteText(line)
-                 #print line
-
-                 # correlation
+ # correlation
         if flag == 3:
             self.my_text.WriteText('Correlation between '+ str(x_name) +' & '+str(y_name)+' is : '+ str(correl_val))
             #if os.path.exists('myfile_correlation.txt'):
@@ -334,8 +346,6 @@ class FinalProject(wx.Frame):
                   #  for line in fobj:
                        #  self.my_text.WriteText(line)
                     #print line
-
-
 #moving Algorithm
 #moving average
     def on_draw_movingAvg(self, event):
@@ -362,10 +372,15 @@ class FinalProject(wx.Frame):
             mvg_avg_option= volatile_value
             mvg_avg_name='Volatility'
         moving_avg_filter()
+        self.my_text.WriteText('**Press Display Data button to see the Moving Average of '+str(mvg_avg_name)+' of data points '+str(no_of_points)+'\n\n')
 
 
             # volatile check
     def on_draw_volatile(self,event):
+        global x_axis_val
+        global y_axis_val
+        x_axis_val=[]
+        y_axis_val=[]
         volatile_check()
         temp1=list(volatile_value)
         temp2=list(volatile_date)
@@ -375,6 +390,7 @@ class FinalProject(wx.Frame):
                 y_axis_val.append(temp1[i])
         print x_axis_val
         print y_axis_val
+        self.my_text.WriteText('**Press Display Graph button to see the Graph Volatility vs Date\n**Press Display Data button to see the Data\n\n')
 #correlation
     def on_draw_correlation(self,event):
         global x_axis
@@ -409,6 +425,7 @@ class FinalProject(wx.Frame):
 
 
         correlation()
+        self.my_text.WriteText('**Press Display Graph button to see the Graph \n**Press Display Data button to see the Correlation value\n\n')
 
 
     def on_draw_reset(self, event):
@@ -491,6 +508,7 @@ def read_file(filename):
     global close_val
     global offset_diam
     global stock_val
+    global cyclic_date_val
 
     book=xlrd.open_workbook(filename)
     sheet=book.sheet_by_index(0)
@@ -503,6 +521,9 @@ def read_file(filename):
             #print date
             if sheet.cell_value(r,0)!='':
                 date_val.append(xlrd.xldate.xldate_as_datetime(int(sheet.cell_value(r,0)), book.datemode))
+                d=xlrd.xldate.xldate_as_datetime(int(sheet.cell_value(r,0)), book.datemode)
+                cyclic_date= d.strftime('%m')
+                cyclic_date_val.append(cyclic_date)
             else:
                 date_val.append(0)
             if sheet.cell_value(r,1)!='':
@@ -524,6 +545,7 @@ def read_file(filename):
             sno.append(serial)
         data_flag = 0
         serial=serial+1
+    print cyclic_date_val
 
     #print date_val
 
@@ -544,30 +566,23 @@ def volatile_check():
     global x_axis_val
     flag=2
     temp=[]
-
     temp1=[]
     temp2=[]
+    volatile_date=[]
     volatile_value=[]
     temp1= list(high_val)
     temp2=list(low_val)
     temp=list(date_val)
    # print temp1,temp2
-    f = open('myfile.txt', 'w')
-    f.write('DAY'+'\t\t'+'HIGH' + '\t' + 'LOW' + '\t' + 'VOLATILE' + '\n')
     for i in range(0,len(sno)):
         if (int(temp1[i])!=0 and int(temp2[i])!=0):
             dif=int(temp1[i])-int(temp2[i])
         else:
             dif=0
         #print dif
-
-        f.write(str(temp[i])+'\t'+str(temp1[i])+'\t'+str(temp2[i])+'\t'+str(dif)+'\n')
-
         volatile_value.append(dif)
         volatile_date.append(temp[i])
     #print volatile_value
-    print volatile_value
-    f.close()
 
 # moving average filter
 def moving_avg_filter():
@@ -601,10 +616,6 @@ def moving_avg_filter():
 
         avg=sum/k
         mvg_avg.append(avg)
-        # print "new diameter:" + str(diameter_mm_mvg_avg[i]) + "\n"
-        # diameter_mm[i] = (diameter_mm[i-1] + diameter_mm[i] + diameter_mm[i+1])/3;
-   # diameter_mm_smooth = list(diameter_mm_mvg_avg)
-    #print mvg_avg
 
 def correlation():
     global high_val
@@ -668,11 +679,24 @@ def correlation():
     print correl_val
     #print N.corrcoef(x_axis,y_axis)
     #print temp1, temp2
-    f = open('myfile_correlation.txt', 'w')
-    f.write('DAY' + '\t\t' + 'HIGH' + '\t' + 'LOW' + '\t' + 'CLOSE' + '\t'+'STOCK'+'\n')
-    for i in range(0, len(sno)):
-        f.write(str(temp0[i]) + '\t' + str(temp1[i]) + '\t' + str(temp2[i]) + '\t' + str(temp3[i])+'\t'+str(temp4[i]) + '\n')
-    f.close()
+
+def cyclic_correlation():
+    global cyclic_date_val
+    global high_val
+    global low_val
+    global volatile_value
+    global stock_val
+    global close_val
+    global x_axis_val
+    global y_axis_val
+    x_axis_val=[]
+    y_axis_val=[]
+    temp1=list(cyclic_date_val)
+    temp2=list(close_val)
+    for i in range(0,len(sno)):
+        if int(temp1[i])!=0 and int(temp2[i])!=0:
+            x_axis_val.append(temp1[i])
+            y_axis_val.append(temp2[i])
 
 
 def export_data(filename):
@@ -697,7 +721,7 @@ def export_data(filename):
 
         temp1=list(mvg_avg)
         sheet.write(0,0, mvg_avg_name)
-        for i in range(0,len(mvg_avg)):
+        for i in range(1,len(mvg_avg)):
             sheet.write(i,0,temp1[i])
 
     if flag == 2:
@@ -708,8 +732,8 @@ def export_data(filename):
         sheet.write(0,0, 'Date')
         sheet.write(0,1,'Volatility')
 
-        for i in range(0,len(volatile_date)):
-            sheet.write(i,0,temp1[i])
+        for i in range(1,len(volatile_date)):
+            sheet.write(i,0,str(temp1[i]))
             sheet.write(i,1,temp2[i])
 
     if flag == 3:
@@ -731,6 +755,7 @@ def reset_all_global():
     global sno
     global date_val
     global high_val
+    global cyclic_date_val
     global low_val
     global close_val
     global offset_diam
@@ -755,6 +780,7 @@ def reset_all_global():
 
     offset_diam = 0
     no_of_points = 1
+    cyclic_date_val=[]
     x_axis = []
     y_axis = []
     x_axis_val = []
