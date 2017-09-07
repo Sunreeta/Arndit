@@ -3,6 +3,7 @@ import numpy as N
 import wx
 import os.path
 import xlrd
+import xlsxwriter
 import matplotlib
 import numpy
 import math
@@ -46,6 +47,7 @@ text_path=""
 x_name=""
 y_name=""
 mvg_avg_name=""
+correl_val=0.0
 
 
 class FinalProject(wx.Frame):
@@ -75,6 +77,8 @@ class FinalProject(wx.Frame):
         m_expt = menu_file.Append(-1, "&Save plot\tCtrl-S", "Save plot to file")
         self.Bind(wx.EVT_MENU, self.on_save_plot, m_expt)
         menu_file.AppendSeparator()
+        m_export = menu_file.Append(-1, "&Export data\tCtrl-X", "Export")
+        self.Bind(wx.EVT_MENU, self.on_export_data, m_export)
 
         m_exit = menu_file.Append(-1, "&Exit\tCtrl-X", "Exit")
         self.Bind(wx.EVT_MENU, self.on_exit, m_exit)
@@ -436,7 +440,7 @@ class FinalProject(wx.Frame):
             defaultDir=os.getcwd(),
             defaultFile="plot.png",
             wildcard=file_choices,
-            style=wx.SAVE)
+            style=wx.FC_SAVE)
 
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
@@ -447,7 +451,7 @@ class FinalProject(wx.Frame):
         global rd_path
         global wr_path
 
-        file_choices = "Text (*.txt)|*.txt"
+        file_choices = "XLSX (*.xlsx)|*.xlsx"
 
         dlg = wx.FileDialog(
             self,
@@ -455,7 +459,7 @@ class FinalProject(wx.Frame):
             defaultDir=os.getcwd(),
             defaultFile="export_data.txt",
             wildcard=file_choices,
-            style=wx.SAVE)
+            style=wx.FC_SAVE)
 
         if dlg.ShowModal() == wx.ID_OK:
             wr_path = dlg.GetPath()
@@ -601,6 +605,7 @@ def correlation():
     global flag
     global x_axis_val
     global y_axis_val
+    global correl_val
     flag=3
     temp1 = list(high_val)
     temp2 = list(low_val)
@@ -640,8 +645,8 @@ def correlation():
             sum_ab=sum_ab+ab_mul
             sum_a_square=sum_a_square+a_square
             sum_b_square=sum_b_square+b_square
-    print x_axis_val
-    print y_axis_val
+    #print x_axis_val
+    #print y_axis_val
     #print sum_b_square
     #print sum_ab
     div=math.sqrt(sum_a_square*sum_b_square)
@@ -655,6 +660,61 @@ def correlation():
     for i in range(0, len(sno)):
         f.write(str(temp0[i]) + '\t' + str(temp1[i]) + '\t' + str(temp2[i]) + '\t' + str(temp3[i])+'\t'+str(temp4[i]) + '\n')
     f.close()
+
+
+def export_data(filename):
+
+    global mvg_avg
+    global x_axis_val
+    global y_axis_val
+    global correl_val
+
+
+    global rd_path
+    global wr_path
+    temp1=[]
+    temp2=[]
+#    fr=open(wr_path,'r')
+
+    fw = xlsxwriter.Workbook(filename)
+    sheet=fw.add_worksheet()
+    if flag == 1:
+        print "Exporting Data File.....\n"
+
+        temp1=list(mvg_avg)
+        sheet.write(0,0, mvg_avg_name)
+        for i in range(1,len(mvg_avg)):
+            sheet.write(i,0,temp1[i])
+
+    if flag == 2:
+        print "Exporting Data File.....\n"
+
+        temp1=list(volatile_date)
+        temp2=list(volatile_value)
+        sheet.write(0,0, 'Date')
+        sheet.write(0,1,'Volatility')
+
+        for i in range(1,len(volatile_date)):
+            sheet.write(i,0,temp1[i])
+            sheet.write(i,1,temp2[i])
+
+    if flag == 3:
+        print "Exporting Data File.....\n"
+
+        temp1=list(x_axis_val)
+        temp2=list(y_axis_val)
+        sheet.write(0,0, x_name)
+        sheet.write(0,1,y_name)
+        sheet.write(0,2,'Correlation')
+        for i in range(1,len(x_axis_val)):
+            sheet.write(i,0,temp1[i])
+            sheet.write(i,1,temp2[i])
+        sheet.write(1,2,correl_val)
+
+    fw.close()
+
+
+
 
 
 def reset_all_global():
